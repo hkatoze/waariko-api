@@ -80,7 +80,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      factureModelNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      factureModelPrimaryColor: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      factureModelSecondaryColor: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
+
     { timestamps: true } // Ajoute createdAt et updatedAt par défaut
   );
 
