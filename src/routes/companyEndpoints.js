@@ -4,22 +4,31 @@ const auth = require("../auth/auth");
 
 module.exports = (app) => {
   // Ajouter une entreprise
-  app.post("/api/companiesProfil", auth, (req, res) => {
-    Company.create(req.body)
-      .then((companiesProfil) => {
-        const message = "Nouveau profil entreprise ajouté.";
-        res.json({ message, data: companiesProfil });
-      })
-      .catch((error) => {
-        if (error instanceof ValidationError) {
-          return res.status(400).json({ message: error.message });
-        }
-        const message =
-          "Le profil n'a pas pu être crée. Réessayez dans quelques instants.";
-        res.status(500).json({ message, data: error });
-      });
-  });
+  app.post("/api/companiesProfil", auth, async (req, res) => {
+    const userId = req.body.userId;
 
+    try {
+      // Vérifier si l'utilisateur possède déjà une entreprise
+      const existingCompany = await Company.findOne({ where: { userId } });
+      if (existingCompany) {
+        return res.status(400).json({
+          message: "Cet utilisateur possède déjà une entreprise.",
+        });
+      }
+      // Si aucune entreprise n'existe, créer une nouvelle entreprise
+      const company = await Company.create(req.body);
+      res.status(201).json({
+        message: "Nouveau profil entreprise ajouté.",
+        data: company,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message:
+          "Le profil n'a pas pu être crée. Réessayez dans quelques instants.",
+        data: error,
+      });
+    }
+  });
   // Récupérer toutes les entreprises
   app.get("/api/companies", auth, (req, res) => {
     Company.findAll()

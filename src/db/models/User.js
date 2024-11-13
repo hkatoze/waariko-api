@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (models) => {
-    // Un utilisateur peut avoir une compagnie
     User.hasOne(models.Company, { foreignKey: "userId", as: "company" });
   };
 
