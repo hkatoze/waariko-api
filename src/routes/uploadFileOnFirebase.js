@@ -4,7 +4,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 
 const upload = multer({ storage: multer.memoryStorage() });
-const UPLOADCARE_PUBLIC_KEY = "324bafb9dd613b7a4266"; // Remplacez par votre clé publique Uploadcare
+const UPLOADCARE_PUBLIC_KEY = "c9a6f393781a5a381658"; // Remplacez par votre clé publique Uploadcare
 
 module.exports = (app) => {
   app.post(
