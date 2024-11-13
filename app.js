@@ -39,7 +39,8 @@ require("./src/routes/fournisseurEndpoints")(app);
 require("./src/routes/uploadFileOnFirebase")(app);
 
 // Configurer le Cron Job pour s'exécuter tous les jours/Exécuter chaque jour à minuit
-cron.schedule("0 0 * * *", updateExpiredSubscriptions);
+cron.schedule("*/2 * * * *", updateExpiredSubscriptions);
+
 //404 error managment
 app.use(({ res }) => {
   const message = `Impossible de trouver la ressource demandée! Vous pouvez essayer une autre URL.`;

@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      daysRemaining: {
+        type: DataTypes.INTEGER,
+        defaultValue: 30, // ou la durée initiale du plan d'abonnement
+      },
       reference: {
         type: DataTypes.STRING,
         allowNull: true,
