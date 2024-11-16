@@ -37,6 +37,8 @@ require("./src/routes/prestataireEndpoints")(app);
 require("./src/routes/fournisseurRepertoryEndpoints")(app);
 require("./src/routes/fournisseurEndpoints")(app);
 require("./src/routes/uploadFileOnFirebase")(app);
+require("./src/routes/taskListEndpoints")(app);
+require("./src/routes/taskEndpoints")(app);
 
 // Configurer le Cron Job pour s'exécuter tous les jours/Exécuter chaque jour à minuit
 cron.schedule("0 0 * * *", updateExpiredSubscriptions);
