@@ -19,6 +19,8 @@ const SubscriptionPlanModel = require("./models/SubscriptionPlan");
 const UserSubscriptionModel = require("./models/UserSubscription");
 const TaskListModel = require("./models/TaskList");
 const TaskModel = require("./models/Task");
+const AchatRepertoryModel = require("./models/AchatRepertory");
+const AchatModel = require("./models/Achat");
 
 const sequelize = new Sequelize(
   "u235953842_waariko",
@@ -51,6 +53,8 @@ const SubscriptionPlan = SubscriptionPlanModel(sequelize, DataTypes);
 const UserSubscription = UserSubscriptionModel(sequelize, DataTypes);
 const TaskList = TaskListModel(sequelize, DataTypes);
 const Task = TaskModel(sequelize, DataTypes);
+const AchatRepertory = AchatRepertoryModel(sequelize, DataTypes);
+const Achat = AchatModel(sequelize, DataTypes);
 
 // Appeler les associations après avoir initialisé les modèles
 User.associate({ Company });
@@ -69,6 +73,8 @@ Fournisseur.associate({ FournisseurRepertory });
 UserSubscription.associate({ User });
 TaskList.associate({ User, Task });
 Task.associate({ User, TaskList });
+AchatRepertory.associate({ User });
+Achat.associate({ AchatRepertory });
 
 const initDb = () => {
   return sequelize.sync().then(() => {
@@ -95,4 +101,6 @@ module.exports = {
   UserSubscription,
   TaskList,
   Task,
+  AchatRepertory,
+  Achat,
 };

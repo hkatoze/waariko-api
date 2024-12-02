@@ -39,8 +39,10 @@ require("./src/routes/fournisseurEndpoints")(app);
 require("./src/routes/uploadFileOnFirebase")(app);
 require("./src/routes/taskListEndpoints")(app);
 require("./src/routes/taskEndpoints")(app);
+require("./src/routes/achatRepertoryEndpoints")(app);
+require("./src/routes/achatEndpoints")(app);
 
-// Configurer le Cron Job pour s'exécuter tous les jours/Exécuter chaque jour à minuit
+// Configurer le Cron Job pour s'exécuter tous les jours à minuit
 cron.schedule("0 0 * * *", updateExpiredSubscriptions);
 
 //404 error managment
