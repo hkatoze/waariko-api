@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     durationInMonths: {
       type: DataTypes.INTEGER, // Durée en mois (1 pour mensuel, 6 pour semestriel, etc.)
       allowNull: false,
