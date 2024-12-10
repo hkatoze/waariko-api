@@ -5,11 +5,10 @@ module.exports = (app) => {
   app.get("/api/update-info", auth, async (req, res) => {
     try {
       const updateInfo = {
-        latestVersion: "1.0.1", // Version actuelle de l'application
+        latestVersion: "1.0.0", // Version actuelle de l'application
         downloadUrl:
           "https://waariko.lelabo-du-numerique.com/Waariko-1.0.0.exe", // Lien de téléchargement
-        changelog:
-          "Intégration de système de paiment d'abonnnement via Mobile Money", // Journal des modifications
+        changelog: "Version Bêta", // Journal des modifications
       };
 
       res.json({
