@@ -76,6 +76,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      design: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue:
+          "https://ucarecdn.com/5ea6939d-7440-418f-a57f-8d8d3930ee05/design.png",
+      },
+      activities: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       signature: {
         type: DataTypes.STRING,
         allowNull: true,
