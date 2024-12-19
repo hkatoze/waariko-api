@@ -24,40 +24,15 @@ module.exports = (app) => {
           .json({ message: "Plan d'abonnement introuvable." });
       }
 
-      // Construire la charge utile pour Yengapay
-      const payload = {
-        paymentAmount: parseFloat(plan.price),
-        reference: `${userId}-${Date.now()}`, // Référence unique
-        articles: [
-          {
-            title: plan.name,
-            description: plan.description,
-            price: parseFloat(plan.price),
-          },
-        ],
-        customerNumber,
-        paymentSource,
-      };
-
-      // Appeler l'API Yengapay
-      const response = await axios.post(
-        `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id}`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": api,
-          },
-        }
-      );
-
-      // Retourner l'URL de paiement à l'utilisateur
-      const data = response.data;
       return res.status(200).json({
         message: "Paiement initié avec succès.",
         data: {
-          checkoutUrl: data.checkoutPageUrlWithPaymentToken,
-          paymentReference: data.reference,
+          planName: plan.name,
+          paymentAmount: parseFloat(plan.price),
+          planDescription: plan.description,
+          customerNumber: customerNumber,
+          paymentSource: paymentSource,
+          paymentReference: `${userId}-${Date.now()}`,
         },
       });
     } catch (error) {
