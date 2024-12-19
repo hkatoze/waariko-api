@@ -8,6 +8,7 @@ const auth = require("../auth/auth");
 const webhookSecret = "49aa37f7-395b-486c-8e58-34ced5c77439";
 const organization_id = "10330707";
 const project_id = "86840";
+const project_id_test = "27491";
 const api = "Vu3Wh52SiIzHMBfKkZIZSrx4Qq58qRXV";
 
 module.exports = (app) => {
@@ -24,15 +25,40 @@ module.exports = (app) => {
           .json({ message: "Plan d'abonnement introuvable." });
       }
 
+      // Construire la charge utile pour Yengapay
+      const payload = {
+        paymentAmount: parseFloat(plan.price),
+        reference: `${userId}-${Date.now()}`, // Référence unique
+        articles: [
+          {
+            title: plan.name,
+            description: plan.description,
+            price: parseFloat(plan.price),
+          },
+        ],
+        customerNumber,
+        paymentSource,
+      };
+
+      // Appeler l'API Yengapay
+      const response = await axios.post(
+        `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id_test}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": api,
+          },
+        }
+      );
+
+      // Retourner l'URL de paiement à l'utilisateur
+      const data = response.data;
       return res.status(200).json({
         message: "Paiement initié avec succès.",
         data: {
-          planName: plan.name,
-          paymentAmount: parseFloat(plan.price),
-          planDescription: plan.description,
-          customerNumber: customerNumber,
-          paymentSource: paymentSource,
-          paymentReference: `${userId}-${Date.now()}`,
+          checkoutUrl: data.checkoutPageUrlWithPaymentToken,
+          paymentReference: data.reference,
         },
       });
     } catch (error) {
@@ -55,6 +81,7 @@ module.exports = (app) => {
         .update(JSON.stringify(payload))
         .digest("hex");
 
+      console.log(`PAIMENT EFFECTUE: ${payload}`);
       // Vérifier si le paiement est réussi
       if (payload.paymentStatus === "DONE") {
         const { reference, paymentAmount } = payload;
