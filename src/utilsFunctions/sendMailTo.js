@@ -3,10 +3,9 @@ const nodemailer = require("nodemailer");
 async function sendMailTo(email, message) {
   // Configuration du transporteur SMTP
   const transporter = nodemailer.createTransport({
-    // @ts-ignore
     host: "smtp-mail.outlook.com",
     port: 587,
-    secureConnection: false,
+    secureConnection: true,
     tls: {
       ciphers: "SSLv3",
     },
