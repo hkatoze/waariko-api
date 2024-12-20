@@ -169,9 +169,14 @@ module.exports = (app) => {
         const endDate = new Date();
         endDate.setMonth(
           now.getMonth() +
-            (parseFloat(amount || paymentAmount) === 9890
+            (parseFloat(
+              amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
+            ) === 9890
               ? 3
-              : parseFloat(amount || paymentAmount) === 18950
+              : parseFloat(
+                  amount ||
+                    Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
+                ) === 18950
               ? 6
               : 12)
         ); // Durée selon le montant
@@ -185,22 +190,31 @@ module.exports = (app) => {
           reference: req.cpm_trans_id || reference,
           paymentMethod: payload.payment_method || payload.paymentSource,
           planAbonnement:
-            (amount || paymentAmount) === 9890
+            (amount ||
+              Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) === 9890
               ? 1
-              : (amount || paymentAmount) === 18950
+              : (amount ||
+                  Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) ===
+                18950
               ? 2
               : 3, // Plan spécifique
-          montant: amount || paymentAmount,
+          montant:
+            amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100),
         });
 
         sendMailTo(
           "harounakinda.pro@gmail.com",
-          `ID_Utilisateur: ${userId}\nPaiment par: ${
+          `ID_Utilisateur: ${userId}<br/>Paiement par: ${
             payload.payment_method || payload.paymentSource
-          }\nMontant payé: ${amount || paymentAmount}\nPlan: ${
-            (amount || paymentAmount) === 9890
+          }<br/>Montant payé: ${
+            amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
+          }<br/>Plan: ${
+            (amount ||
+              Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) === 9890
               ? "3 MOIS"
-              : (amount || paymentAmount) === 18950
+              : (amount ||
+                  Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) ===
+                18950
               ? "6 MOIS"
               : "12 MOIS"
           }`
