@@ -5,8 +5,9 @@ const axios = require("axios");
 const crypto = require("crypto");
 const { SubscriptionPlan, UserSubscription } = require("../db/sequelize");
 const auth = require("../auth/auth");
+const { sendMailTo } = require("../utilsFunctions/sendMailTo");
 
-const provider = "cinetpay";
+const provider = "yengapay";
 
 const site_id = "5884044";
 const secret_key = "1360248057675855c88446f7.26302722";
@@ -30,7 +31,7 @@ const api_key =
 const payment_url =
   // @ts-ignore
   provider == "yengapay"
-    ? `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id}`
+    ? `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id_test}`
     : "https://api-checkout.cinetpay.com/v2/payment";
 module.exports = (app) => {
   // Endpoint pour initier un paiement
@@ -129,23 +130,41 @@ module.exports = (app) => {
 
   // Endpoint pour gérer le webhook de notification
   app.post("/api/subscription/webhook", async (req, res) => {
-    const payload = req.body;
+    // Appeler l'API
+    const response = await axios.post(
+      "https://api-checkout.cinetpay.com/v2/payment/check",
+      { apikey: api_key, site_id: site_id, transaction_id: req.cpm_trans_id },
+      {
+        headers:
+          // @ts-ignore
+          provider == "yengapay"
+            ? {
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+              }
+            : {
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+              },
+      }
+    );
+    const payload = response.data || req.body;
 
     try {
       console.log(`PAIMENT EFFECTUE: ${payload}`);
       // Vérifier si le paiement est réussi
-      if (payload.paymentStatus === "DONE") {
-        const { reference, paymentAmount } = payload;
+      if ((payload.paymentStatus || payload.status) === "DONE" || "ACCEPTED") {
+        const { reference, paymentAmount, amount } = payload;
 
         // Enregistrer ou mettre à jour la souscription
-        const [userId] = reference.split("-");
+        const [userId] = (req.cpm_trans_id || reference).split("-");
         const now = new Date();
         const endDate = new Date();
         endDate.setMonth(
           now.getMonth() +
-            (parseFloat(paymentAmount) === 9890
+            (parseFloat(amount || paymentAmount) === 9890
               ? 3
-              : parseFloat(paymentAmount) === 18950
+              : parseFloat(amount || paymentAmount) === 18950
               ? 6
               : 12)
         ); // Durée selon le montant
@@ -156,13 +175,29 @@ module.exports = (app) => {
           endDate: `${endDate}`,
           // @ts-ignore
           daysRemaining: (endDate - now) / (1000 * 60 * 60 * 24),
-          reference,
-          paymentMethod: payload.paymentSource,
+          reference: req.cpm_trans_id || reference,
+          paymentMethod: payload.payment_method || payload.paymentSource,
           planAbonnement:
-            paymentAmount === 9890 ? 1 : paymentAmount === 18950 ? 2 : 3, // Plan spécifique
-          montant: paymentAmount,
+            (amount || paymentAmount) === 9890
+              ? 1
+              : (amount || paymentAmount) === 18950
+              ? 2
+              : 3, // Plan spécifique
+          montant: amount || paymentAmount,
         });
 
+        sendMailTo(
+          "harounakinda.pro@gmail.com",
+          `ID_Utilisateur: ${userId}\nPaiment par: ${
+            payload.payment_method || payload.paymentSource
+          }\nMontant payé: ${amount || paymentAmount}\nPlan: ${
+            (amount || paymentAmount) === 9890
+              ? "3 MOIS"
+              : (amount || paymentAmount) === 18950
+              ? "6 MOIS"
+              : "12 MOIS"
+          }`
+        );
         return res.status(200).json({
           message: "Souscription mise à jour avec succès.",
         });
