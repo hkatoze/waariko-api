@@ -6,14 +6,14 @@ async function sendMailTo(email, message) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "hello.lelabo@gmail.com", // Remplace par ton adresse Gmail
+        user: "harounakinda.pro@gmail.com", // Remplace par ton adresse Gmail
         pass: "ytfe evea dxyr ynik", // Remplace par une variable d'environnement pour plus de sécurité
       },
     });
 
     // Contenu de l'e-mail
     const mailOptions = {
-      from: "hello.lelabo@gmail.com",
+      from: "harounakinda.pro@gmail.com",
       to: email,
       subject: "NOUVEL ABONNEMENT WAARIKO",
       html: `<!DOCTYPE html>
