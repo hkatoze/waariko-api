@@ -12,7 +12,7 @@ async function sendMailTo(email, message) {
     },
     auth: {
       user: "waariko@outlook.com",
-      pass: "KXR77-7GAGM-9BS9G-XRXTQ-L29FA",
+      pass: "yuxwigckvlbmlkgj",
     },
   });
 
