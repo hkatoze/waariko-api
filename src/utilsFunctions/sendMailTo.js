@@ -12,7 +12,7 @@ async function sendMailTo(email, message) {
     },
     auth: {
       user: "waariko@outlook.com",
-      pass: "Kind@1404",
+      pass: "KXR77-7GAGM-9BS9G-XRXTQ-L29FA",
     },
   });
 
@@ -46,7 +46,7 @@ async function sendMailTo(email, message) {
           height: auto;
           margin-bottom: 20px;
         }
-        .verification-code {
+        .message {
           background-color: #f0f0f0;
           padding: 10px 20px;
           border-radius: 5px;
@@ -60,7 +60,7 @@ async function sendMailTo(email, message) {
         <img src="https://ucarecdn.com/70280d7e-8198-4787-b773-b622e2591c28/-/preview/494x505/" alt="Waariko logo">
         <h2>NOUVEL ABONNEMENT WAARIKO</h2>
         <p>Un nouvel abonnement à waariko vient d'être effectué:</p>
-        <p class="verification-code">${message}</p>
+        <p class="message">${message}</p>
        
  
       </div>
