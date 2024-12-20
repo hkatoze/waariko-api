@@ -169,14 +169,11 @@ module.exports = (app) => {
         const endDate = new Date();
         endDate.setMonth(
           now.getMonth() +
-            (parseFloat(
-              amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
-            ) === 9890
+            (parseFloat(amount || paymentAmount) >= 0 &&
+            parseFloat(amount || paymentAmount) <= 9890
               ? 3
-              : parseFloat(
-                  amount ||
-                    Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
-                ) === 18950
+              : parseFloat(amount || paymentAmount) > 9890 &&
+                parseFloat(amount || paymentAmount) <= 18950
               ? 6
               : 12)
         ); // Durée selon le montant
@@ -190,31 +187,37 @@ module.exports = (app) => {
           reference: req.cpm_trans_id || reference,
           paymentMethod: payload.payment_method || payload.paymentSource,
           planAbonnement:
-            (amount ||
-              Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) === 9890
+            (amount || paymentAmount) >= 0 && (amount || paymentAmount) <= 9890
               ? 1
-              : (amount ||
-                  Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) ===
-                18950
+              : (amount || paymentAmount) > 9890 &&
+                (amount || paymentAmount) <= 18950
               ? 2
               : 3, // Plan spécifique
           montant:
-            amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100),
+            (amount || paymentAmount) >= 0 && (amount || paymentAmount) <= 9890
+              ? 9890
+              : (amount || paymentAmount) > 9890 &&
+                (amount || paymentAmount) <= 18950
+              ? 18950
+              : 34950,
         });
 
         sendMailTo(
           "harounakinda.pro@gmail.com",
-          `ID_Utilisateur: ${userId}<br/>Paiement par: ${
+          `ID_Utilisateur: ${userId}<br/>Paiment par: ${
             payload.payment_method || payload.paymentSource
           }<br/>Montant payé: ${
-            amount || Math.round(paymentAmount + (paymentAmount * 2.5) / 100)
+            (amount || paymentAmount) >= 0 && (amount || paymentAmount) <= 9890
+              ? 9890
+              : (amount || paymentAmount) > 9890 &&
+                (amount || paymentAmount) <= 18950
+              ? 18950
+              : 34950
           }<br/>Plan: ${
-            (amount ||
-              Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) === 9890
+            (amount || paymentAmount) >= 0 && (amount || paymentAmount) <= 9890
               ? "3 MOIS"
-              : (amount ||
-                  Math.round(paymentAmount + (paymentAmount * 2.5) / 100)) ===
-                18950
+              : (amount || paymentAmount) > 9890 &&
+                (amount || paymentAmount) <= 18950
               ? "6 MOIS"
               : "12 MOIS"
           }`
