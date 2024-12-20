@@ -5,21 +5,21 @@ async function sendMailTo(email, message) {
   const transporter = nodemailer.createTransport({
     host: "smtp-mail.outlook.com",
     port: 587,
-    secureConnection: true,
+    secureConnection: false,
     tls: {
       ciphers: "SSLv3",
     },
     auth: {
-      user: "waariko@outlook.com",
-      pass: "yuxwigckvlbmlkgj",
+      user: "kaalan226@outlook.com",
+      pass: "Kind@1404",
     },
   });
 
   // Contenu de l'e-mail
   const mailOptions = {
-    from: "waariko@outlook.com",
+    from: "kaalan226@outlook.com",
     to: email,
-    subject: "Code de vérification pour réinitialisation du mot de passe",
+    subject: "NOUVEL ABONNEMENT WAARIKO",
     html: `<!DOCTYPE html>
     <html lang="fr">
     <head>
