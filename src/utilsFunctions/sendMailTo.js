@@ -7,7 +7,7 @@ async function sendMailTo(email, message) {
       service: "gmail",
       auth: {
         user: "hello.lelabo@gmail.com", // Remplace par ton adresse Gmail
-        pass: "Kind@1404", // Remplace par une variable d'environnement pour plus de sécurité
+        pass: "ytfe evea dxyr ynik", // Remplace par une variable d'environnement pour plus de sécurité
       },
     });
 
