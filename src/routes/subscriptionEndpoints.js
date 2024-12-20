@@ -1,16 +1,37 @@
+// @ts-ignore
 const express = require("express");
 const axios = require("axios");
+// @ts-ignore
 const crypto = require("crypto");
 const { SubscriptionPlan, UserSubscription } = require("../db/sequelize");
 const auth = require("../auth/auth");
 
-// Clé secrète du webhook (fournie par Yengapay)
-const webhookSecret = "49aa37f7-395b-486c-8e58-34ced5c77439";
-const organization_id = "10330707";
-const project_id = "86840";
-const project_id_test = "27491";
-const api = "Vu3Wh52SiIzHMBfKkZIZSrx4Qq58qRXV";
+const provider = "cinetpay";
 
+const site_id = "5884044";
+const secret_key = "1360248057675855c88446f7.26302722";
+// @ts-ignore
+const webhookSecret =
+  // @ts-ignore
+  provider == "yengapay" ? "49aa37f7-395b-486c-8e58-34ced5c77439" : secret_key;
+// @ts-ignore
+const organization_id = provider == "yengapay" ? "10330707" : site_id;
+
+// @ts-ignore
+const project_id = provider == "yengapay" ? "86840" : "";
+// @ts-ignore
+const project_id_test = provider == "yengapay" ? "27491" : "";
+const api_key =
+  // @ts-ignore
+  provider == "yengapay"
+    ? "Vu3Wh52SiIzHMBfKkZIZSrx4Qq58qRXV"
+    : "12001103106758547e0f7881.78817412";
+
+const payment_url =
+  // @ts-ignore
+  provider == "yengapay"
+    ? `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id}`
+    : "https://api-checkout.cinetpay.com/v2/payment";
 module.exports = (app) => {
   // Endpoint pour initier un paiement
   app.post("/api/subscription/payment", auth, async (req, res) => {
@@ -26,43 +47,80 @@ module.exports = (app) => {
       }
 
       // Construire la charge utile pour Yengapay
-      const payload = {
-        paymentAmount: parseFloat(plan.price),
-        reference: `${userId}-${Date.now()}`, // Référence unique
-        articles: [
-          {
-            title: plan.name,
-            description: plan.description,
-            price: parseFloat(plan.price),
-          },
-        ],
-        customerNumber,
-        paymentSource,
-      };
+      const payload =
+        // @ts-ignore
+        provider == "yengapay"
+          ? {
+              paymentAmount: parseFloat(plan.price),
+              reference: `${userId}-${Date.now()}`, // Référence unique
+              articles: [
+                {
+                  title: plan.name,
+                  description: plan.description,
+                  price: parseFloat(plan.price),
+                },
+              ],
+              customerNumber,
+              paymentSource,
+            }
+          : {
+              apikey: api_key,
+              site_id: organization_id,
+              transaction_id: `${userId}-${Date.now()}`, // Référence unique
+              amount: parseFloat(plan.price),
+              currency: "XOF",
+              customer_phone_number: customerNumber,
+              notify_url:
+                "https://waariko-api.onrender.com/api/subscription/webhook",
+              return_url: "https://waariko-app.lelabo-du-numerique.com",
+              channels: "ALL",
+              lang: "FR",
+              description: "ABONNEMENT WARRIKO",
+              customer_id: "172",
+              customer_name: "USER",
+              customer_surname: "USER",
+              customer_email: "user@gmail.com",
+              customer_address: "Antananarivo",
+              customer_city: "Antananarivo",
+              customer_country: "CM",
+              customer_state: "CM",
+              customer_zip_code: "065100",
+              invoice_data: {
+                title: plan.name,
+                description: plan.description,
+                price: parseFloat(plan.price),
+              },
+            };
 
-      // Appeler l'API Yengapay
-      const response = await axios.post(
-        `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id_test}`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": api,
-          },
-        }
-      );
+      // Appeler l'API
+      const response = await axios.post(payment_url, payload, {
+        headers:
+          // @ts-ignore
+          provider == "yengapay"
+            ? {
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+              }
+            : {
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+              },
+      });
 
       // Retourner l'URL de paiement à l'utilisateur
-      const data = response.data;
+      const data =
+        // @ts-ignore
+        provider == "yengapay" ? response.data : response.data.data;
+      console.log(`${data}`);
       return res.status(200).json({
         message: "Paiement initié avec succès.",
         data: {
-          checkoutUrl: data.checkoutPageUrlWithPaymentToken,
-          paymentReference: data.reference,
+          checkoutUrl: data.checkoutPageUrlWithPaymentToken || data.payment_url,
+          paymentReference: `${userId}-${Date.now()}`,
         },
       });
     } catch (error) {
-      console.error("Erreur lors de l'initiation du paiement :", error.message);
+      console.error("Erreur lors de l'initiation du paiement :", error);
       return res.status(500).json({
         message: `Erreur lors de l'initiation du paiement: ${error}.`,
       });
@@ -71,16 +129,9 @@ module.exports = (app) => {
 
   // Endpoint pour gérer le webhook de notification
   app.post("/api/subscription/webhook", async (req, res) => {
-    const hash = req.headers["x-webhook-hash"];
     const payload = req.body;
 
     try {
-      // Vérifier l'authenticité de l'appel webhook
-      const payloadHashed = crypto
-        .createHmac("sha256", webhookSecret)
-        .update(JSON.stringify(payload))
-        .digest("hex");
-
       console.log(`PAIMENT EFFECTUE: ${payload}`);
       // Vérifier si le paiement est réussi
       if (payload.paymentStatus === "DONE") {
