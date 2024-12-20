@@ -131,23 +131,30 @@ module.exports = (app) => {
   // Endpoint pour gérer le webhook de notification
   app.post("/api/subscription/webhook", async (req, res) => {
     // Appeler l'API
-    const response = await axios.post(
-      "https://api-checkout.cinetpay.com/v2/payment/check",
-      { apikey: api_key, site_id: site_id, transaction_id: req.cpm_trans_id },
-      {
-        headers:
-          // @ts-ignore
-          provider == "yengapay"
-            ? {
-                "Content-Type": "application/json",
-                "x-api-key": api_key,
-              }
-            : {
-                "Content-Type": "application/json",
-                "x-api-key": api_key,
-              },
-      }
-    );
+    const response =
+      provider == "yengapay"
+        ? {}
+        : await axios.post(
+            "https://api-checkout.cinetpay.com/v2/payment/check",
+            {
+              apikey: api_key,
+              site_id: site_id,
+              transaction_id: req.cpm_trans_id,
+            },
+            {
+              headers:
+                // @ts-ignore
+                provider == "yengapay"
+                  ? {
+                      "Content-Type": "application/json",
+                      "x-api-key": api_key,
+                    }
+                  : {
+                      "Content-Type": "application/json",
+                      "x-api-key": api_key,
+                    },
+            }
+          );
     const payload = response.data || req.body;
 
     try {
