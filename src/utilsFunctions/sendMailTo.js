@@ -4,18 +4,16 @@ async function sendMailTo(email, message) {
   try {
     // Configuration du transporteur SMTP
     const transporter = nodemailer.createTransport({
-      host: "smtp-mail.outlook.com",
-      port: 587,
-      secure: false, // false pour le port 587
+      service: "gmail",
       auth: {
-        user: "waariko@outlook.com",
-        pass: "fpwpgznwqdmbmudn", // Remplace par une variable d'environnement pour plus de sécurité
+        user: "hello.lelabo@gmail.com", // Remplace par ton adresse Gmail
+        pass: "Kind@1404", // Remplace par une variable d'environnement pour plus de sécurité
       },
     });
 
     // Contenu de l'e-mail
     const mailOptions = {
-      from: "waariko@outlook.com",
+      from: "hello.lelabo@gmail.com",
       to: email,
       subject: "NOUVEL ABONNEMENT WAARIKO",
       html: `<!DOCTYPE html>
