@@ -31,7 +31,7 @@ const api_key =
 const payment_url =
   // @ts-ignore
   provider == "yengapay"
-    ? `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id_test}`
+    ? `https://api.yengapay.com/api/v1/groups/${organization_id}/payment-intent/${project_id}`
     : "https://api-checkout.cinetpay.com/v2/payment";
 module.exports = (app) => {
   // Endpoint pour initier un paiement
