@@ -51,15 +51,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       remise: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: true,
       },
       tva: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: true,
       },
       paiementModality: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: true,
       },
       totalAmount: {
