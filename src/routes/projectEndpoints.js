@@ -1,5 +1,5 @@
 const { Project, Client, Facture } = require("../db/sequelize");
-const { ValidationError } = require("sequelize");
+const { ValidationError, Op, Sequelize } = require("sequelize");
 const auth = require("../auth/auth");
 
 module.exports = (app) => {
@@ -140,20 +140,41 @@ module.exports = (app) => {
       });
   });
 
-  // Récupérer tous les projets terminés d'un utilisateur
+  // Récupérer tous les projets terminés d'un utilisateur dans une plage de dates
   app.get("/api/users/:userId/completed-projects", auth, async (req, res) => {
     const userId = req.params.userId;
+    let { startDate, endDate } = req.query;
 
     try {
+      let whereCondition = {
+        userId: userId,
+        statut: "Projet terminé",
+      };
+
+      // Vérifier que startDate et endDate sont fournis
+      if (startDate && endDate) {
+        whereCondition[Op.and] = [
+          Sequelize.where(
+            Sequelize.fn(
+              "STR_TO_DATE",
+              Sequelize.col("createDate"),
+              "%d/%m/%Y"
+            ),
+            {
+              [Op.between]: [
+                Sequelize.fn("STR_TO_DATE", startDate, "%d/%m/%Y"),
+                Sequelize.fn("STR_TO_DATE", endDate, "%d/%m/%Y"),
+              ],
+            }
+          ),
+        ];
+      }
+
       const completedProjects = await Project.findAll({
-        where: {
-          userId: userId,
-          statut: "Projet terminé", // Assure-toi que le statut "Terminé" est défini ainsi dans ta base de données
-        },
+        where: whereCondition,
         include: [
           {
             model: Client,
-
             attributes: [
               "id",
               "type",
@@ -167,14 +188,14 @@ module.exports = (app) => {
               "contactInterneEmail",
               "contactInternePoste",
               "contactInterneContact",
-            ], // Ajoute les attributs que tu veux du client
+            ],
           },
           {
             model: Facture,
             where: {
               type: "Proforma",
             },
-            required: false, // Utilise `false` pour inclure les projets même s'il n'y a pas de facture proforma
+            required: false,
             attributes: [
               "id",
               "projectId",
@@ -190,17 +211,21 @@ module.exports = (app) => {
               "totalAmount",
               "createDate",
               "validateDate",
-            ], // Ajoute les attributs que tu veux de la facture
-            limit: 1, // Récupère une seule facture de type "Proforma" par projet
+            ],
+            limit: 1,
           },
         ],
+        order: [
+          [
+            Sequelize.fn(
+              "STR_TO_DATE",
+              Sequelize.col("createDate"),
+              "%d/%m/%Y"
+            ),
+            "DESC",
+          ],
+        ],
       });
-
-      if (completedProjects.length === 0) {
-        return res.status(404).json({
-          message: "Aucun projet terminé trouvé pour cet utilisateur.",
-        });
-      }
 
       res.status(200).json({
         message: "Projets terminés récupérés avec succès.",

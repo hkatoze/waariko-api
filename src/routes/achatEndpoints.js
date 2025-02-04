@@ -1,5 +1,5 @@
 const { AchatRepertory, Achat } = require("../db/sequelize");
-const { ValidationError } = require("sequelize");
+const { ValidationError, Sequelize, Op } = require("sequelize");
 const auth = require("../auth/auth");
 
 module.exports = (app) => {
@@ -94,15 +94,37 @@ module.exports = (app) => {
   app.get("/api/users/:userId/achats", auth, (req, res) => {
     const userId = req.params.userId;
 
+    let { startDate, endDate } = req.query;
+
+    let whereCondition = {
+      userId,
+    };
+
+    // Vérifier que startDate et endDate sont fournis
+    if (startDate && endDate) {
+      whereCondition[Op.and] = [
+        Sequelize.where(
+          Sequelize.fn("STR_TO_DATE", Sequelize.col("date"), "%d/%m/%Y"),
+          {
+            [Op.between]: [
+              Sequelize.fn("STR_TO_DATE", startDate, "%d/%m/%Y"),
+              Sequelize.fn("STR_TO_DATE", endDate, "%d/%m/%Y"),
+            ],
+          }
+        ),
+      ];
+    }
+
     Achat.findAll({
-      where: { userId },
+      where: whereCondition,
+      order: [
+        [
+          Sequelize.fn("STR_TO_DATE", Sequelize.col("date"), "%d/%m/%Y"),
+          "DESC",
+        ],
+      ],
     })
       .then((achats) => {
-        if (achats.length === 0) {
-          return res.status(404).json({
-            message: "Aucun achats trouvés pour cet utilisateur.",
-          });
-        }
         const message = "Achats récupérés avec succès.";
         res.json({ message, data: achats });
       })
